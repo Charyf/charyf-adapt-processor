@@ -1,35 +1,54 @@
+require 'charyf'
+require 'charyf/engine/intent/processors/adapt/routing_builder'
+
+require 'pycall/import'
+
 module Charyf
   module Engine
     class Intent
       module Processors
         class Adapt < Base
 
+          MUTEX = Mutex.new.freeze
+          private_constant :MUTEX
+
           class << self
-            @semaphore = Mutex.new
+            include PyCall::Import
 
-            def engine
-              @engine ||= init_engine
+            def engine(skill = nil)
+              MUTEX.synchronize {
+                return _engines[skill] ||= init_engine(skill)
+              }
             end
 
-            def init_engine
+            def init_engine(skill = nil)
+              pyfrom 'adapt.intent', import: :IntentBuilder
+              pyfrom 'adapt.engine', import: :IntentDeterminationEngine
 
-
-              @engine = engine
+              @engine = IntentDeterminationEngine.new
             end
+
+            def public_routing_for(skill_name)
+              # TODO We need to assign uniq names with skill in the probably
+              # TODO We need to keep database of all routes
+              builder = RoutingBuilder.new(skill_name)
+
+              yield builder
+
+              builder.build(engine)
+            end
+
+            def private_routing_for(skill_name)
+
+            end
+
+            def _engines
+              @engines ||= {}
+            end
+
           end
 
-          def process(request, conversation_id, skill = nil)
-
-            #TODO remove
-            if request.text =~ /foo/
-              return Charyf::Engine::Intent.new(:Example, :foo_bar, :foo, 100)
-            end
-            if request.text =~ /bar/
-              return Charyf::Engine::Intent.new(:Example, :foo_bar, :bar, 100)
-            end
-            # TODO TILL HERE
-
-
+          def determine(request, skill = nil)
             unknown
           end
 
@@ -38,3 +57,6 @@ module Charyf
     end
   end
 end
+
+# Create alias for prettier use
+AdaptIntentProcessor = Charyf::Engine::Intent::Processors::Adapt
