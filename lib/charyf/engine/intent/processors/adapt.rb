@@ -35,7 +35,12 @@ module Charyf
 
               yield builder
 
-              builder.build(engine)
+              intents = builder.build(engine)
+
+              # TODO handle already existing
+              intents.each do |intent|
+                _intents[intent.name] = intent
+              end
             end
 
             def private_routing_for(skill_name)
@@ -46,10 +51,36 @@ module Charyf
               @engines ||= {}
             end
 
+            def _intents
+              @intents ||= {}
+            end
+
           end
 
           def determine(request, skill = nil)
-            unknown
+            text = request.text
+
+            adapt_intent = nil
+            generator = self.class.engine(skill).determine_intent(text)
+            begin
+              adapt_intent = PyCall.builtins.next(generator)
+            rescue PyCall::PyError
+              # ignored
+            end
+
+            return unknown unless adapt_intent
+            # TODO Confidence
+            confidence = adapt_intent['confidence']
+            app_intent = self.class._intents[adapt_intent['intent_type']]
+
+
+            matches =  app_intent.entities.map { |e| e.keys.first }.inject({}) do |h, entity|
+              h[Adapt.unscope_name(app_intent.skill, entity)] = adapt_intent[entity]
+              h
+            end
+
+            # def initialize(skill, controller, action, confidence, matches = Hash.new)
+            Charyf::Engine::Intent.new(app_intent.skill, app_intent.controller, app_intent.action, confidence, matches)
           end
 
         end

@@ -7,9 +7,14 @@ module Charyf
         class Adapt < Base
           class RoutingBuilder
 
+            class InvalidState < StandardError; end
+
             class Intent
-              def initialize(name)
-                @name = name.to_s.gsub(' ', '_').camelize
+              attr_reader :skill, :name, :controller, :action, :entities
+
+              def initialize(skill, name)
+                @skill = skill
+                @name = name
                 @controller = nil
                 @action = nil
 
@@ -17,12 +22,14 @@ module Charyf
               end
 
               def required(entity)
+                entity = Adapt.scoped_name(@skill, entity)
                 @entities << {entity => :required}
 
                 return self
               end
 
               def optional(entity)
+                entity = Adapt.scoped_name(@skill, entity)
                 @entities << {entity => :optional}
 
                 return self
@@ -54,20 +61,43 @@ module Charyf
             end
 
             def intent(name)
-              intent = Intent.new(name)
+              intent = Intent.new(@skill, Adapt.scoped_name(@skill,name.to_s.gsub(' ', '')))
               @intents << intent
 
               intent
             end
 
             def build(engine)
-              binding.pry
+              @keywords.each do |group, words|
+                words.each do |word|
+                  engine.register_entity(word, group)
+                end
+              end
 
-              # words.each do |word|
-              #   @engine.register_entity(word, Adapt.scoped_name(@skill, category))
-              # end
+              @regexps.each do |regexp|
+                engine.register_regex_entity(regexp)
+              end
 
-              # @engine.register_regex_entity(scope_regex(regex))
+              @intents.each do |intent|
+                builder = IntentBuilder.new(intent.name)
+
+                intent.entities.each do |entity|
+                  entity, method = entity.first
+                  case method
+                    when :required
+                      builder.require(entity)
+                    when :optional
+                      builder.optionally(entity)
+                    else
+                      raise InvalidState.new('You should never end up here')
+                  end
+
+                  adapt_intent = builder.build
+                  engine.register_intent_parser(adapt_intent)
+                end
+              end
+
+              @intents
             end
 
             private
