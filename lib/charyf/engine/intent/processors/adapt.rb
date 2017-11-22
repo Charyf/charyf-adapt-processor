@@ -9,6 +9,9 @@ module Charyf
       module Processors
         class Adapt < Base
 
+          processor_name :adapt
+          definition_extension :adapt
+
           MUTEX = Mutex.new.freeze
           private_constant :MUTEX
 
@@ -25,7 +28,7 @@ module Charyf
               pyfrom 'adapt.intent', import: :IntentBuilder
               pyfrom 'adapt.engine', import: :IntentDeterminationEngine
 
-              @engine = IntentDeterminationEngine.new
+              IntentDeterminationEngine.new
             end
 
             def public_routing_for(skill_name)
@@ -69,7 +72,7 @@ module Charyf
             end
 
             return unknown unless adapt_intent
-            # TODO Confidence
+
             confidence = adapt_intent['confidence']
             app_intent = self.class._intents[adapt_intent['intent_type']]
 
