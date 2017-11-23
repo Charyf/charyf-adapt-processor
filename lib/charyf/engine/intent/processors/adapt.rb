@@ -9,7 +9,7 @@ module Charyf
       module Processors
         class Adapt < Base
 
-          processor_name :adapt
+          strategy_name :adapt
           definition_extension :adapt
 
           MUTEX = Mutex.new.freeze
