@@ -1,9 +1,9 @@
-require 'charyf/engine/intent/processors/adapt'
+require 'charyf/engine/intent/processor/adapt'
 
 module Charyf
   module Engine
     class Intent
-      module Processors
+      module Processor
         class Adapt < Base
           class RoutingBuilder
 

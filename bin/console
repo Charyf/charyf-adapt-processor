@@ -10,7 +10,7 @@ require 'charyf/adapt_processor'
 # require "pry"
 # Pry.start
 
-Adapt = Charyf::Engine::Intent::Processors::Adapt
+Adapt = Charyf::Engine::Intent::Processor::Adapt
 
 require "irb"
 IRB.start(__FILE__)

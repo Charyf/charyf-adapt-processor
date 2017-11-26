@@ -1,12 +1,12 @@
 require 'charyf'
-require 'charyf/engine/intent/processors/adapt/routing_builder'
+require 'charyf/engine/intent/processor/adapt/routing_builder'
 
 require 'pycall/import'
 
 module Charyf
   module Engine
     class Intent
-      module Processors
+      module Processor
         class Adapt < Base
 
           strategy_name :adapt
@@ -93,4 +93,4 @@ module Charyf
 end
 
 # Create alias for prettier use
-AdaptIntentProcessor = Charyf::Engine::Intent::Processors::Adapt
+AdaptIntentProcessor = Charyf::Engine::Intent::Processor::Adapt

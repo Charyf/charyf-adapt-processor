@@ -5,7 +5,7 @@ require_relative '../adapt'
 module Charyf
   module Engine
     class Intent
-      module Processors
+      module Processor
         class Adapt < Base
           VERSION = '0.1.0'.freeze
         end

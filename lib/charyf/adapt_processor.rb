@@ -1,2 +1,2 @@
-require 'charyf/engine/intent/processors/adapt'
-require 'charyf/engine/intent/processors/adapt/version'
+require 'charyf/engine/intent/processor/adapt'
+require 'charyf/engine/intent/processor/adapt/version'
