@@ -61,9 +61,9 @@ module Charyf
           end
 
           def determine(request, skill = nil)
-            text = request.text
-
             adapt_intent = nil
+            text = Charyf.application.parser.normalize(request.text)
+
             generator = self.class.engine(skill).determine_intent(text)
             begin
               adapt_intent = PyCall.builtins.next(generator)
