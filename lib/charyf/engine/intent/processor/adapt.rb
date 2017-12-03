@@ -10,7 +10,6 @@ module Charyf
         class Adapt < Base
 
           strategy_name :adapt
-          definition_extension :adapt
 
           MUTEX = Mutex.new.freeze
           private_constant :MUTEX
@@ -18,36 +17,26 @@ module Charyf
           class << self
             include PyCall::Import
 
-            def engine(skill = nil)
+            def get_for(skill_name = nil)
+              engine = engine(skill_name)
+
+              self.new(skill_name, engine)
+            end
+
+            def engine(skill_name = nil)
               MUTEX.synchronize {
-                return _engines[skill] ||= init_engine(skill)
+                return _engines[skill_name] ||= init_engine
               }
             end
 
-            def init_engine(skill = nil)
-              pyfrom 'adapt.intent', import: :IntentBuilder
-              pyfrom 'adapt.engine', import: :IntentDeterminationEngine
+            def init_engine
+              unless @_python_loaded
+                pyfrom 'adapt.intent', import: :IntentBuilder
+                pyfrom 'adapt.engine', import: :IntentDeterminationEngine
+                @_python_loaded = true
+              end
 
               IntentDeterminationEngine.new
-            end
-
-            def public_routing_for(skill_name)
-              # TODO We need to assign uniq names with skill in the probably
-              # TODO We need to keep database of all routes
-              builder = RoutingBuilder.new(skill_name)
-
-              yield builder
-
-              intents = builder.build(engine)
-
-              # TODO handle already existing
-              intents.each do |intent|
-                _intents[intent.name] = intent
-              end
-            end
-
-            def private_routing_for(skill_name)
-
             end
 
             def _engines
@@ -60,11 +49,28 @@ module Charyf
 
           end
 
-          def determine(request, skill = nil)
+          def initialize(skill_name, engine)
+            @skill_name = skill_name
+            @engine = engine
+          end
+
+          def load(skill_name, block)
+            builder = Adapt::RoutingBuilder.new(skill_name)
+
+            block.call(builder)
+
+            intents = builder.build(@engine)
+
+            # TODO handle already existing
+            intents.each do |intent|
+              self.class._intents[intent.name] = intent
+            end
+          end
+
+          def determine(request)
             adapt_intent = nil
             text = Charyf.application.parser.normalize(request.text)
-
-            generator = self.class.engine(skill).determine_intent(text)
+            generator = @engine.determine_intent(text)
             begin
               adapt_intent = PyCall.builtins.next(generator)
             rescue PyCall::PyError
@@ -91,6 +97,3 @@ module Charyf
     end
   end
 end
-
-# Create alias for prettier use
-AdaptIntentProcessor = Charyf::Engine::Intent::Processor::Adapt
