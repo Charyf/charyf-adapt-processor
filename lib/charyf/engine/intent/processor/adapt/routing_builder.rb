@@ -10,10 +10,10 @@ module Charyf
             class InvalidState < StandardError; end
 
             class Intent
-              attr_reader :skill, :name, :controller, :action, :entities
+              attr_reader :skill_name, :name, :controller, :action, :entities
 
-              def initialize(skill, name)
-                @skill = skill
+              def initialize(skill_name, name)
+                @skill_name = skill_name
                 @name = name
                 @controller = nil
                 @action = nil
@@ -22,14 +22,14 @@ module Charyf
               end
 
               def required(entity)
-                entity = Adapt.scoped_name(@skill, entity)
+                entity = Adapt.scoped_name(@skill_name, entity)
                 @entities << {entity => :required}
 
                 return self
               end
 
               def optional(entity)
-                entity = Adapt.scoped_name(@skill, entity)
+                entity = Adapt.scoped_name(@skill_name, entity)
                 @entities << {entity => :optional}
 
                 return self
@@ -39,10 +39,10 @@ module Charyf
                 @controller = controller
                 @action = action
               end
-            end
+            end # End of Intent.class
 
-            def initialize(skill)
-              @skill = skill
+            def initialize(skill_name)
+              @skill_name = skill_name
 
               @keywords = {}
               @regexps = []
@@ -52,7 +52,7 @@ module Charyf
             def register_keywords(category, word, *words)
               words = [word] + words
 
-              (@keywords[Adapt.scoped_name(@skill, category)] ||= []).push(words).flatten!
+              (@keywords[Adapt.scoped_name(@skill_name, category)] ||= []).push(words).flatten!
             end
 
             def register_regex(regex)
@@ -61,7 +61,7 @@ module Charyf
             end
 
             def intent(name)
-              intent = Intent.new(@skill, Adapt.scoped_name(@skill,name.to_s.gsub(' ', '')))
+              intent = Intent.new(@skill_name, Adapt.scoped_name(@skill_name,name.to_s.gsub(' ', '')))
               @intents << intent
 
               intent
@@ -103,7 +103,7 @@ module Charyf
             private
 
             def scope_regex(regex)
-              regex.to_s.gsub(/\(\?P\<(.*)\>/, "(?P<#{Adapt.scoped_name(@skill, '\1').gsub('.', '_')}>")
+              regex.to_s.gsub(/\(\?P\<(.*)\>/, "(?P<#{Adapt.scoped_name(@skill_name, '\1').gsub('.', '_')}>")
             end
 
           end

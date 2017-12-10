@@ -84,12 +84,11 @@ module Charyf
 
 
             matches =  app_intent.entities.map { |e| e.keys.first }.inject({}) do |h, entity|
-              h[Adapt.unscope_name(app_intent.skill, entity)] = adapt_intent[entity]
+              h[Adapt.unscope_name(app_intent.skill_name, entity)] = adapt_intent[entity]
               h
             end
 
-            # def initialize(skill, controller, action, confidence, matches = Hash.new)
-            Charyf::Engine::Intent.new(app_intent.skill, app_intent.controller, app_intent.action, confidence, matches)
+            Charyf::Engine::Intent.new(app_intent.skill_name, app_intent.controller, app_intent.action, confidence, matches)
           end
 
         end
