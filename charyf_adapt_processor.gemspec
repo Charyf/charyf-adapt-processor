@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'charyf/engine/intent/processor/adapt/version'
+require 'adapt/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "charyf-adapt-processor"
-  spec.version       = Charyf::Engine::Intent::Processor::Adapt::VERSION
+  spec.name          = "adapt-charyf"
+  spec.version       = Adapt::VERSION
   spec.authors       = ["Richard Ludvigh"]
   spec.email         = ["richard.ludvigh@gmail.com"]
 
