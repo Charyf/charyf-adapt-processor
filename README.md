@@ -1,15 +1,13 @@
-# CharyfAdaptProcessor
+# Adapt-Charyf
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/charyf_adapt_processor`. To experiment with that code, run `bin/console` for an interactive prompt.
+Adapt-Charyf is a ruby wrapper around Mycroft's Intent parser library [mycroft/Adapt](https://github.com/MycroftAI/adapt). This wrapper provides charyf interface to defining and determining intents.
 
-TODO: Delete this and the text above, and describe your gem
+# Getting Started
 
-## Installation
-
-Add this line to your application's Gemfile:
+Add this line to your charyf application's Gemfile:
 
 ```ruby
-gem 'charyf_adapt_processor'
+gem 'adapt-chartf'
 ```
 
 And then execute:
@@ -18,11 +16,63 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install charyf_adapt_processor
+    $ gem install adapt-charyf
 
 ## Usage
 
-TODO: Write usage instructions here
+Defining the intent is very similiar to original adapt library.
+
+### Entities
+
+Firstly we define entites that will occur in our utterances.
+
+**Register an keyword entity**
+
+```ruby
+Skill.public_routing_for :adapt do |routing|
+    routing.register_keywords 'greet', 'Hello', 'Hi'
+end
+```
+
+Keyword entity is defined by its name *greet* and followed by all phrases in this entity.
+For entity *greet* we define two works *Hi* and *Hello*.
+
+**Register regex entity**
+
+User may register regex entity as well. 
+
+```ruby
+Skill.public_routing_for :adapt do |routing|
+    routing.register_regex 'in (?P<location>.*)'
+end
+```
+
+Regex entity requires a regex with one named capture. This named capture is then used as the name of the entity.
+Example above defines new regex entity with name *location*.
+
+> Adapt regex entities use python's syntax as there is no current 1:1 mapping between ruby and python regex syntax. 
+However defining named capture is very similiar.
+
+All defined entities are available in the scope of particular skill and are not visible to other skills. 
+Once can imagine defining entity *hello* as *Skill:Hello*, thus not coliding with other skills.
+
+### Intent
+
+Once our entities are defined and correctly named we can start building intents.
+
+```ruby
+Skill.public_routing_for :adapt do |routing|
+    routing.intent('GreetIntent')
+      .required('greet')
+      #.optional('another_entity')
+      .route_to('base', 'hello')
+end
+```
+
+Example above defines new intent *GreetIntent*, with one required entity. We can also define optional entities which does not need to occur in the utterance.
+Last step of defining is setting the *routing*. By specifying **route_to('base', 'hello')** we define that matched intent should be routed to **Skill::BaseController** into action **hello**.
+
+Routing can't be defined outside the scope of the skill as it is automatically nested into skill namespace.
 
 ## Development
 
