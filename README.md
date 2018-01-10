@@ -17,8 +17,17 @@ And then execute:
 Or install it yourself as:
 
     $ gem install adapt-charyf
+    
+Make sure the python library is installed
+```pip install -e git+https://github.com/mycroftai/adapt#egg=adapt-parser``` [or use pip3 if desired]
+
+Adapt-charyf uses ```pycall``` gem to handle python calls.
 
 ## Usage
+
+When launching any ruby application using adapt-charyf, ensure that   
+```ENV['PYTHON'] = /path/to/python/with/adapt/libary```   
+is set to python version that has adapt-parser installed.
 
 Defining the intent is very similiar to original adapt library.
 
