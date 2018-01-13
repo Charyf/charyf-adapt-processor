@@ -56,7 +56,7 @@ module Adapt
 
         block.call(builder)
 
-        intents = builder.build(@engine)
+        intents = builder.build(@engine, IntentBuilder)
 
         # TODO handle already existing
         intents.each do |intent|
@@ -81,7 +81,7 @@ module Adapt
 
 
         matches =  app_intent.entities.map { |e| e.keys.first }.inject({}) do |h, entity|
-          h[Adapt.unscope_name(app_intent.skill_name, entity)] = adapt_intent[entity]
+          h[self.class.unscope_name(app_intent.skill_name, entity)] = adapt_intent[entity]
           h
         end
 

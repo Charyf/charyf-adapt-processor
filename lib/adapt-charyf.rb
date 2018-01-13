@@ -1,5 +1,5 @@
 require 'charyf'
-require_relative 'adapt/adapt'
+require_relative 'adapt/processor'
 
 module Adapt
   class Extension < Charyf::Extension

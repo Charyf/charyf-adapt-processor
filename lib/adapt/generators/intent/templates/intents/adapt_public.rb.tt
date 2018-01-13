@@ -1,0 +1,9 @@
+<%= class_name -%>.public_routing_for :adapt do |routing|
+
+  routing.register_keywords 'skill_name', '<%= class_name.gsub("::", " ") -%>'
+
+  routing.intent('Example')
+      .required('skill_name')
+      .route_to('base', 'example')
+
+end

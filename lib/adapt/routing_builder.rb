@@ -16,14 +16,14 @@ module Adapt
       end
 
       def required(entity)
-        entity = Adapt.scoped_name(@skill_name, entity)
+        entity = Adapt::Intent::Processor.scoped_name(@skill_name, entity)
         @entities << {entity => :required}
 
         return self
       end
 
       def optional(entity)
-        entity = Adapt.scoped_name(@skill_name, entity)
+        entity = Adapt::Intent::Processor.scoped_name(@skill_name, entity)
         @entities << {entity => :optional}
 
         return self
@@ -46,7 +46,7 @@ module Adapt
     def register_keywords(category, word, *words)
       words = [word] + words
 
-      (@keywords[Adapt.scoped_name(@skill_name, category)] ||= []).push(words).flatten!
+      (@keywords[Adapt::Intent::Processor.scoped_name(@skill_name, category)] ||= []).push(words).flatten!
     end
 
     def register_regex(regex)
@@ -55,13 +55,13 @@ module Adapt
     end
 
     def intent(name)
-      intent = Intent.new(@skill_name, Adapt.scoped_name(@skill_name,name.to_s.gsub(' ', '')))
+      intent = Intent.new(@skill_name, Adapt::Intent::Processor.scoped_name(@skill_name,name.to_s.gsub(' ', '')))
       @intents << intent
 
       intent
     end
 
-    def build(engine)
+    def build(engine, intent_builder_class)
       @keywords.each do |group, words|
         words.each do |word|
           engine.register_entity(word, group)
@@ -73,7 +73,7 @@ module Adapt
       end
 
       @intents.each do |intent|
-        builder = IntentBuilder.new(intent.name)
+        builder = intent_builder_class.new(intent.name)
 
         intent.entities.each do |entity|
           entity, method = entity.first
@@ -97,7 +97,7 @@ module Adapt
     private
 
     def scope_regex(regex)
-      regex.to_s.gsub(/\(\?P\<(.*)\>/, "(?P<#{Adapt.scoped_name(@skill_name, '\1').gsub('.', '_')}>")
+      regex.to_s.gsub(/\(\?P\<(.*)\>/, "(?P<#{Adapt::Intent::Processor.scoped_name(@skill_name, '\1').gsub('.', '_')}>")
     end
 
   end
