@@ -10,9 +10,9 @@ module Adapt
         template 'intents/adapt_public.rb', File.join('app/skills', skill_content_path, 'intents', 'adapt_public.rb')
       end
 
-      def private_routing
-        template 'intents/adapt_private.rb', File.join('app/skills', skill_content_path, 'intents', 'adapt_private.rb')
-      end
+      # def private_routing
+      #   template 'intents/adapt_private.rb', File.join('app/skills', skill_content_path, 'intents', 'adapt_private.rb')
+      # end
 
     end
   end
