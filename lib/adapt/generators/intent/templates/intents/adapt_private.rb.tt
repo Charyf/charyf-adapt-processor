@@ -1,3 +1,0 @@
-<%= class_name -%>.private_routing_for :adapt do |routing|
-
-end

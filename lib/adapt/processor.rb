@@ -6,60 +6,72 @@ module Adapt
   module Intent
     class Processor < Charyf::Engine::Intent::Processor::Base
 
-      strategy_name :adapt
+      class NameCollisionError < StandardError; end
 
-      MUTEX = Mutex.new.freeze
-      private_constant :MUTEX
+      strategy_name :adapt
 
       class << self
         include PyCall::Import
 
-        def get_for(skill_name = nil)
-          engine = engine(skill_name)
-
-          self.new(skill_name, engine)
-        end
-
-        def engine(skill_name = nil)
-          MUTEX.synchronize {
-            return _engines[skill_name] ||= init_engine
-          }
-        end
-
-        def init_engine
+        def engine
           unless @_python_loaded
-            pyfrom 'adapt.intent', import: :IntentBuilder
-            pyfrom 'adapt.engine', import: :IntentDeterminationEngine
+            self.pyfrom 'adapt.intent', import: :IntentBuilder
+            self.pyfrom 'adapt.engine', import: :IntentDeterminationEngine
             @_python_loaded = true
           end
 
-          IntentDeterminationEngine.new
-        end
-
-        def _engines
-          @engines ||= {}
+          @engine ||= IntentDeterminationEngine.new
         end
 
         def _intents
           @intents ||= {}
         end
 
+        def setup
+          return if @initialized
+          @initialized = true
+
+          load_files
+        end
+
+        private
+
+        def load_files
+          # Seek skill folders
+          Charyf::Skill.list.each do |skill_klass|
+            root = skill_klass.skill_root
+
+            Dir[root.join('intents', '**', '*.adapt.rb')].each do |intent_definition_file|
+              require intent_definition_file
+            end
+          end
+
+          # Load additional paths
+          Adapt.lookup_paths.each do |path|
+            Dir[Pathname.new(path.to_s).join('**', '*.adapt.rb')].each do |intent_definition_file|
+              require intent_definition_file
+            end
+          end
+
+        end
       end
 
-      def initialize(skill_name, engine)
-        @skill_name = skill_name
-        @engine = engine
+      def initialize
+        self.class.setup
+        @engine = self.class.engine
       end
 
-      def load(skill_name, block)
-        builder = Adapt::RoutingBuilder.new(skill_name)
+      def define(&block)
+        builder = Adapt::RoutingBuilder.new
 
         block.call(builder)
 
         intents = builder.build(@engine, IntentBuilder)
 
-        # TODO handle already existing
         intents.each do |intent|
+          # TODO handle already existing
+          raise NameCollisionError.new("Intent name '#{intent.name}' already in use.") if self.class._intents[intent.name]
+
           self.class._intents[intent.name] = intent
         end
       end
@@ -80,14 +92,13 @@ module Adapt
         app_intent = self.class._intents[adapt_intent['intent_type']]
 
 
-        matches =  app_intent.entities.map { |e| e.keys.first }.inject({}) do |h, entity|
-          h[self.class.unscope_name(app_intent.skill_name, entity)] = adapt_intent[entity]
+        entities = app_intent.entities.map { |e| e.keys.first }.inject({}) do |h, entity|
+          h[entity] = adapt_intent[entity]
           h
         end
 
-        Charyf::Engine::Intent.new(app_intent.skill_name, app_intent.controller, app_intent.action, confidence, matches)
+        return Charyf::Engine::Intent.new(app_intent.name, confidence, entities)
       end
-
 
     end
   end

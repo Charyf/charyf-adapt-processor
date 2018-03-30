@@ -7,12 +7,8 @@ module Adapt
       source_root File.expand_path('templates', __dir__)
 
       def public_routing
-        template 'intents/adapt_public.rb', File.join('app/skills', skill_content_path, 'intents', 'adapt_public.rb')
+        template 'intents/adapt/routing.adapt.rb', File.join('app/skills', skill_content_path, 'intents', 'adapt', 'default_routing.adapt.rb')
       end
-
-      # def private_routing
-      #   template 'intents/adapt_private.rb', File.join('app/skills', skill_content_path, 'intents', 'adapt_private.rb')
-      # end
 
     end
   end

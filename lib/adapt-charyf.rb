@@ -11,4 +11,11 @@ module Adapt
     config.generators.skill_hooks :intents, :adapt => true
 
   end
+
+  extend self
+
+  def lookup_paths
+    @lookup_paths ||= []
+  end
+
 end

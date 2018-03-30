@@ -4,40 +4,29 @@ module Adapt
     class InvalidState < StandardError; end
 
     class Intent
-      attr_reader :skill_name, :name, :controller, :action, :entities
+      attr_reader :name, :entities
 
-      def initialize(skill_name, name)
-        @skill_name = skill_name
+      def initialize(name)
         @name = name
-        @controller = nil
-        @action = nil
 
         @entities = []
       end
 
       def required(entity)
-        entity = Adapt::Intent::Processor.scoped_name(@skill_name, entity)
         @entities << {entity => :required}
 
         return self
       end
 
       def optional(entity)
-        entity = Adapt::Intent::Processor.scoped_name(@skill_name, entity)
         @entities << {entity => :optional}
 
         return self
       end
 
-      def route_to(controller, action)
-        @controller = controller
-        @action = action
-      end
     end # End of Intent.class
 
-    def initialize(skill_name)
-      @skill_name = skill_name
-
+    def initialize
       @keywords = {}
       @regexps = []
       @intents = []
@@ -46,22 +35,21 @@ module Adapt
     def register_keywords(category, word, *words)
       words = [word] + words
 
-      (@keywords[Adapt::Intent::Processor.scoped_name(@skill_name, category)] ||= []).push(words).flatten!
+      (@keywords[category] ||= []).push(words).flatten!
     end
 
     def register_regex(regex)
-      @regexps << scope_regex(regex)
-
+      @regexps << regex
     end
 
     def intent(name)
-      intent = Intent.new(@skill_name, Adapt::Intent::Processor.scoped_name(@skill_name,name.to_s.gsub(' ', '')))
+      intent = Intent.new(name)
       @intents << intent
 
       intent
     end
 
-    def build(engine, intent_builder_class)
+    def build(engine, python_builder)
       @keywords.each do |group, words|
         words.each do |word|
           engine.register_entity(word, group)
@@ -73,7 +61,7 @@ module Adapt
       end
 
       @intents.each do |intent|
-        builder = intent_builder_class.new(intent.name)
+        builder = python_builder.new(intent.name)
 
         intent.entities.each do |entity|
           entity, method = entity.first
@@ -92,12 +80,6 @@ module Adapt
       end
 
       @intents
-    end
-
-    private
-
-    def scope_regex(regex)
-      regex.to_s.gsub(/\(\?P\<(.*)\>/, "(?P<#{Adapt::Intent::Processor.scoped_name(@skill_name, '\1').gsub('.', '_')}>")
     end
 
   end
