@@ -1,8 +1,8 @@
-Adapt.instance.load do |routing|
+Adapt::Intent::Processor.instance.define do |nlp|
 
-  routing.register_keywords 'skill_name', '<%= class_name.gsub("::", " ") -%>'
+  nlp.register_keywords 'skill_name', '<%= class_name.gsub("::", " ") -%>'
 
-  routing.intent('<%= class_name.gsub("::", "/") -%>/example')
+  nlp.intent('<%= class_name.gsub("::", "/") -%>/example')
       .required('skill_name')
 
 end
