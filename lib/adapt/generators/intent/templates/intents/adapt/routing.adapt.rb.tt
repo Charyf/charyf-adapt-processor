@@ -2,7 +2,7 @@ Adapt.instance.load do |routing|
 
   routing.register_keywords 'skill_name', '<%= class_name.gsub("::", " ") -%>'
 
-  routing.intent('<%= class_name.gsub("::", ":") -%>')
+  routing.intent('<%= class_name.gsub("::", "/") -%>/example')
       .required('skill_name')
 
 end
