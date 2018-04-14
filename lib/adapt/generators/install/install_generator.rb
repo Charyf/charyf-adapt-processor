@@ -14,7 +14,8 @@ module Adapt
         return unless behavior == :invoke
 
         say_status 'notice', "Adapt installed" +
-            "\n\t\tDo not forget to set adapt intent processor in application configuration", :green
+            "\n\t\tDo not forget to set adapt intent processor in application configuration" +
+            "\n\t\t\tconfig.enabled_intent_processors = [.., :adapt, ..]", :green
       end
 
     end
