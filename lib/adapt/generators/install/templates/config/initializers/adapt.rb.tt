@@ -1,2 +1,18 @@
 # Alternatively set the python path in code
 # ENV['PYTHON'] = 'python3'
+
+Adapt::Extension.configure do
+
+  # You can set custom lookup paths for adapt intents
+  # By default it searches for files ending '*.adapt.rb' inside
+  #   [skill]/intents folder
+  #
+  # config.lookup_paths << ['path/to/intent/definitions]'
+
+
+  # Switch to different locale
+  # Adapt uses text helpers to normalize text
+  # If locale is empty, I18n locale will be used
+  #
+  # config.locale = nil
+end

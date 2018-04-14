@@ -56,7 +56,7 @@ module Adapt
           end
 
           # Load additional paths
-          Adapt.config.lookup_paths.each do |path|
+          Adapt.config.lookup_paths.flatten.each do |path|
             Dir[Pathname.new(path.to_s).join('**', '*.adapt.rb')].each do |intent_definition_file|
               require intent_definition_file
             end
