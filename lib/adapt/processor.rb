@@ -38,9 +38,9 @@ module Adapt
         def parser
           return @_parser if @_parser_initialized
 
-          @_parser = Adapt::Helpers::Parser.get(Adapt.config.locale)
+          @_parser = Adapt::Helpers::Parser.get(Adapt.locale)
           @_parser_initialized = true
-          puts "No language helper for locale '#{Adapt.config.locale}' available" if @_parser.nil?
+          puts "No language helper for locale '#{Adapt.locale}' available" if @_parser.nil?
         end
 
         private
