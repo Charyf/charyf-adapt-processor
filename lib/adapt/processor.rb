@@ -1,6 +1,7 @@
 require 'pycall/import'
 
 require_relative 'routing_builder'
+require_relative 'helpers/parser'
 
 module Adapt
   module Intent
@@ -20,18 +21,26 @@ module Adapt
             @_python_loaded = true
           end
 
-          @engine ||= IntentDeterminationEngine.new
+          @_engine ||= IntentDeterminationEngine.new
         end
 
         def _intents
-          @intents ||= {}
+          @_intents ||= {}
         end
 
         def setup
-          return if @initialized
-          @initialized = true
+          return if @_initialized
+          @_initialized = true
 
           load_files
+        end
+
+        def parser
+          return @_parser if @_parser_initialized
+
+          @_parser = Adapt::Helpers::Parser.get(Adapt.locale)
+          @_parser_initialized = true
+          puts "No language helper for locale '#{Adapt.locale}' available" if @_parser.nil?
         end
 
         private
@@ -59,6 +68,8 @@ module Adapt
       def initialize
         self.class.setup
         @engine = self.class.engine
+
+        @parser = self.class.parser
       end
 
       def define(&block)
@@ -78,7 +89,10 @@ module Adapt
 
       def determine(request)
         adapt_intent = nil
-        text = Charyf.application.parser.normalize(request.text)
+
+        # Normalize text
+        text = @parser ? @parser.normalize(request.text) : request.text
+
         generator = @engine.determine_intent(text)
         begin
           adapt_intent = PyCall.builtins.next(generator)
@@ -93,7 +107,10 @@ module Adapt
 
 
         entities = app_intent.entities.map { |e| e.keys.first }.inject({}) do |h, entity|
-          h[entity] = adapt_intent[entity]
+          h[entity] = {
+              value: adapt_intent[entity]
+          }
+
           h
         end
 

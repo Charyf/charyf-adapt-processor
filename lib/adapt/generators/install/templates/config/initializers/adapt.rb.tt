@@ -1,0 +1,2 @@
+# Alternatively set the python path in code
+# ENV['PYTHON'] = 'python3'
