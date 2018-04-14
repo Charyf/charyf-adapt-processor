@@ -38,9 +38,9 @@ module Adapt
         def parser
           return @_parser if @_parser_initialized
 
-          @_parser = Adapt::Helpers::Parser.get(Adapt.locale)
+          @_parser = Adapt::Helpers::Parser.get(Adapt.config.locale)
           @_parser_initialized = true
-          puts "No language helper for locale '#{Adapt.locale}' available" if @_parser.nil?
+          puts "No language helper for locale '#{Adapt.config.locale}' available" if @_parser.nil?
         end
 
         private
@@ -56,7 +56,7 @@ module Adapt
           end
 
           # Load additional paths
-          Adapt.lookup_paths.each do |path|
+          Adapt.config.lookup_paths.each do |path|
             Dir[Pathname.new(path.to_s).join('**', '*.adapt.rb')].each do |intent_definition_file|
               require intent_definition_file
             end

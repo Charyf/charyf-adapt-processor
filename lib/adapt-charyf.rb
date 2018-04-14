@@ -15,17 +15,14 @@ module Adapt
 
     # If unset, I18n locale will be used
     config.locale = nil
+    config.lookup_paths = []
 
   end
 
   extend self
 
-  def lookup_paths
-    @lookup_paths ||= []
-  end
-
-  def locale
-    Extension.config.locale || I18n.locale
+  def config
+    Extension.config
   end
 
 end
