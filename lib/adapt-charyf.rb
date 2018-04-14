@@ -21,6 +21,10 @@ module Adapt
 
   extend self
 
+  def locale
+    config.locale || I18n.locale
+  end
+
   def config
     Extension.config
   end
