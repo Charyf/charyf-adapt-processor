@@ -4,19 +4,47 @@ Adapt-Charyf is a ruby wrapper around Mycroft's Intent parser library [mycroft/A
 
 # Getting Started
 
+## Installing to existing charyf applicaiton
+
 Add this line to your charyf application's Gemfile:
 
 ```ruby
-gem 'adapt-chartf'
+gem 'adapt-charyf'
 ```
 
 And then execute:
 
     $ bundle
 
-Or install it yourself as:
+Then add the adapt to the applocation loads by adding line to ``config/load.rb``
+```ruby
+require 'adapt-charyf'
+```
 
-    $ gem install adapt-charyf
+To generate the intializer run
+```bash
+charyf generate adapt:install
+```
+
+You should be welcomed by the message
+```
+      create  config/initializers/adapt.rb
+      notice  Adapt installed
+		Do not forget to set adapt intent processor in application configuration
+```
+
+## Install with new charyf application
+You can add adapt as intent processor during generation of new application. Just use 
+``--intent-processors=adapt`` as argument with your ``charyf new ...`` command.
+
+After new app is created make sure you crete the initializer by running
+```bash
+charyf generate adapt:install
+```
+
+When installing adapt along charyf new application, ``config/loads.rb`` and configuration inside ``config/application.rb`` will be populated automatically.
+
+## Dependencies
     
 Make sure the python library is installed
 ```pip install -e git+https://github.com/mycroftai/adapt#egg=adapt-parser``` [or use pip3 if desired]
