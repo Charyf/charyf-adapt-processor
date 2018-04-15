@@ -53,6 +53,10 @@ Adapt-charyf uses ```pycall``` gem to handle python calls.
 
 ## Usage
 
+<div class="alert alert-success">
+Blah blah blah
+</div>
+
 When launching any ruby application using adapt-charyf, ensure that   
 ```ENV['PYTHON'] = /path/to/python/with/adapt/libary```   
 is set to python version that has adapt-parser installed.
