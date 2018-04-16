@@ -11,7 +11,7 @@ module Adapt
       end
 
       def finalize
-        return unless behavior == :invoke
+        return if behavior != :invoke || options[:autorun]
 
         say_status 'notice', "Adapt installed" +
             "\n\t\tDo not forget to set adapt intent processor in application configuration" +
